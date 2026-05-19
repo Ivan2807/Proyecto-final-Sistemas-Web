@@ -6,7 +6,7 @@ import { getCategoriaById } from '../utils/Categorias'
 export default function Lista({ items = [], onEdit, onArchive }) {
   const [categoria, setCategoria] = useState('')
 
-  const filtered = useMemo(() => {
+  const filtro = useMemo(() => {
     if (!categoria) return items
     return items.filter((it) => it.categoriaId === categoria)
   }, [items, categoria])
@@ -18,12 +18,12 @@ export default function Lista({ items = [], onEdit, onArchive }) {
 
       <h3 style={{ marginTop: 16 }}>Items</h3>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {filtered.map((it) => (
+        {filtro.map((it) => (
           <li key={it.id} style={{ padding: 10, borderBottom: '1px solid #eee' }}>
             <Cartaitem item={it} onEdit={onEdit} onArchive={onArchive} category={getCategoriaById(it.categoriaId)} />
           </li>
         ))}
-        {filtered.length === 0 && <li style={{ padding: 10, color: '#6b0909' }}>No hay items activos para esta categoría.</li>}
+        {filtro.length === 0 && <li style={{ padding: 10, color: '#6b0909' }}>No hay items activos para esta categoría.</li>}
       </ul>
     </div>
   )
