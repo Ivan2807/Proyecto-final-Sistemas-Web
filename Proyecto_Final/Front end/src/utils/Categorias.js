@@ -1,15 +1,16 @@
 export const CATEGORIAS = [
-  { id: 'accion', nombre: 'Acción', emoji: '🎮', color: '#e74c3c' },
-  { id: 'rpg', nombre: 'RPG', emoji: '🧙', color: '#9b59b6' },
-  { id: 'estrategia', nombre: 'Estrategia', emoji: '🧠', color: '#2ecc71' },
-  { id: 'deportes', nombre: 'Deportes', emoji: '⚽', color: '#3498db' },
-  { id: 'aventura', nombre: 'Aventura', emoji: '🏞️', color: '#00bcd4' },
+  { id: 'accion', nombre: 'Acción', emoji: '🎮', color: '#E84040' },
+  { id: 'rpg', nombre: 'RPG', emoji: '🧙', color: '#7F77DD' },
+  { id: 'estrategia', nombre: 'Estrategia', emoji: '🧠', color: '#3B9B4F' },
+  { id: 'aventura', nombre: 'Aventura', emoji: '🗻', color: '#00A8CC' },
+  { id: 'deportes', nombre: 'Deportes', emoji: '⚽', color: '#F5A623' },
+  { id: 'simulacion', nombre: 'Simulación', emoji: '🎛️', color: '#9013FE' },
 ]
 
 export const ESTADOS = [
-  { id: 'pendiente', label: 'Pendiente' },
-  { id: 'en-progreso', label: 'En progreso' },
-  { id: 'completado', label: 'Completado' },
+  { id: 'pendiente', label: 'Pendiente', emoji: '📋' },
+  { id: 'en-progreso', label: 'En progreso', emoji: '▶️' },
+  { id: 'completado', label: 'Completado', emoji: '✅' },
 ]
 
 export const getCategoriaById = (id) =>

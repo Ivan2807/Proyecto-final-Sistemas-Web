@@ -1,67 +1,93 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { ContenedorProvider, useContenedor } from './context/ContenedorContexto'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import Lista from './Componentes/Lista'
 import Formulario from './Componentes/formulario'
+import Seleccionar from './Componentes/Seleccionar'
 import { CATEGORIAS, ESTADOS } from './utils/Categorias'
 
-const STORAGE_KEY = 'mi_coleccion_items'
-
-function makeItem(data) {
-  const now = new Date().toISOString()
-  return {
-    id: crypto.randomUUID(),
-    nombre: data.nombre,
-    categoriaId: data.categoriaId,
-    estado: data.estado,
-    puntuacion: data.puntuacion,
-    fechaRegistro: data.fechaRegistro ?? now,
-    fechaActividad: now,
-    notas: data.notas,
-    atributos: data.atributos ?? {},
-    activo: data.activo ?? true,
-  }
-}
-
-const initialItems = () => {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored) return []
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return []
-  }
-}
-
-export default function App() {
-  const [items, setItems] = useState(initialItems)
+// ── Componente interno que usa los contextos ──
+function Coleccion() {
+  const { modo, obtenerItems, guardarItem, eliminarItem, error } = useContenedor()
+  const { toggleTheme } = useTheme()
+  const [items, setItems] = useState([])
   const [editing, setEditing] = useState(null)
   const [filtroCategoria, setFiltroCategoria] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [busqueda, setBusqueda] = useState('')
 
+  // useRef 1 — para enfocar el input de nombre
+  const nombreRef = useRef(null)
+  // useRef 2 — para scroll automático al último item
+  const lastItemRef = useRef(null)
+
+  const cargar = async () => {
+    const datos = await obtenerItems()
+    setItems(datos)
+  }
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-  }, [items])
+    cargar()
+  }, [modo, obtenerItems])
 
-  const salvarItem = (data) => {
-    if (editing) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editing.id
-            ? { ...item, ...data, fechaActividad: new Date().toISOString() }
-            : item
-        )
-      )
-      setEditing(null)
-      return
+  // Enfocar el campo nombre cuando se edita un item
+  useEffect(() => {
+    if (editing && nombreRef.current) {
+      nombreRef.current.focus()
     }
-    setItems((prev) => [makeItem(data), ...prev])
+  }, [editing])
+
+  // Scroll automático al último item añadido
+  useEffect(() => {
+    if (lastItemRef.current && items.length > 0 && !editing) {
+      setTimeout(() => {
+        lastItemRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 200)
+    }
+  }, [items.length])
+
+  // Atajos de teclado: Ctrl+N para enfocar nombre, T para cambiar tema
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl + N: enfocar el input de nombre
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault()
+        nombreRef.current?.focus()
+      }
+      // T: cambiar tema
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault()
+        toggleTheme()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [toggleTheme])
+
+  const salvarItem = async (data) => {
+    const now = new Date().toISOString()
+    const payload = editing
+      ? { ...editing, ...data, fechaActividad: now }
+      : {
+          id: crypto.randomUUID(),
+          ...data,
+          fechaRegistro: now,
+          fechaActividad: now,
+          activo: true,
+        }
+
+    await guardarItem(payload)
+    setEditing(null)
+    cargar()
   }
 
-  const archivarItem = (item) => {
-    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, activo: false } : it)))
+  const archivarItem = async (item) => {
+    await eliminarItem(item.id)
+    cargar()
   }
 
-  const filteredItems = items.filter((item) => {
+  const filteredItems = items.filter(item => {
     if (!item.activo) return false
     if (filtroCategoria && item.categoriaId !== filtroCategoria) return false
     if (filtroEstado && item.estado !== filtroEstado) return false
@@ -70,54 +96,87 @@ export default function App() {
   })
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: 16 }}>
-      <header style={{ marginBottom: 20 }}>
-        <h1>Mi colección personal</h1>
-        <p>Front-end fase 1: CRUD local con LocalStorage.</p>
+    <div style={{ maxWidth: 960, margin: '0 auto', padding: 16, perspective: '1000px', transform: 'skewY(-0.5deg)' }}>
+      <header style={{ marginBottom: 20, position: 'sticky', top: '-10px' }}>
+        <h1 style={{ letterSpacing: '1px', fontKerning: 'none' }}>Mi colección de videojuegos 🎮</h1>
+        <p style={{ marginBottom: 0, paddingRight: '200px' }}>Fase 2: useContext + useRef + tema visual + atajos de teclado</p>
+        <small style={{ color: '#999', display: 'block', marginTop: '10px', transform: 'scale(0.95, 1)' }}>Atajos: Ctrl+N para enfocar nombre | T para cambiar tema</small>
       </header>
 
+      {/* Selector de modo API/Local y tema */}
+      <Seleccionar />
+
+      {/* Error del servidor */}
+      {error && (
+        <div style={{
+          background: 'var(--color-button-bg)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 6,
+          color: '#c00',
+          padding: 12,
+          marginBottom: 16,
+        }}>
+          ⚠️ error: {error}
+        </div>
+      )}
+
+      {/* Formulario */}
       <section style={{ marginBottom: 24 }}>
-        <h2>{editing ? 'Editar item' : 'Agregar item'}</h2>
+        <h2>{editing ? 'Editar juego' : 'Agregar juego'}</h2>
         <Formulario
           onSubmit={salvarItem}
           initial={editing}
           onCancel={() => setEditing(null)}
-          estados={ESTADOS}
-          categorias={CATEGORIAS}
+          nombreRef={nombreRef}
         />
       </section>
 
-      <section style={{ marginBottom: 24, display: 'grid', gap: 12 }}>
+      {/* Filtros */}
+      <section style={{ marginBottom: 24 }}>
         <h2>Filtros</h2>
-        <div style={{ display: 'grid', gap: 12 }}>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
-              <option value="">Todas las categorías</option>
-              {CATEGORIAS.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-            <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
-              <option value="">Todos los estados</option>
-              {ESTADOS.map((estado) => (
-                <option key={estado.id} value={estado.id}>{estado.label}</option>
-              ))}
-            </select>
-            <input
-              placeholder="Buscar por nombre"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-          </div>
-          <button type="button" onClick={() => { setFiltroCategoria(''); setFiltroEstado(''); setBusqueda('') }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}>
+            <option value="">Todas las categorías</option>
+            {CATEGORIAS.map(c => (
+              <option key={c.id} value={c.id}>{c.emoji} {c.nombre}</option>
+            ))}
+          </select>
+          <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+            <option value="">Todos los estados</option>
+            {ESTADOS.map(e => (
+              <option key={e.id} value={e.id}>{e.emoji} {e.label}</option>
+            ))}
+          </select>
+          <input
+            placeholder="Buscar por nombre"
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
+          <button onClick={() => { setFiltroCategoria(''); setFiltroEstado(''); setBusqueda('') }}>
             Limpiar filtros
           </button>
         </div>
       </section>
 
-      <section>
-        <Lista items={filteredItems} onEdit={setEditing} onArchive={archivarItem} />
+      {/* Lista */}
+      <section ref={lastItemRef}>
+        <Lista
+          items={filteredItems}
+          onEdit={setEditing}
+          onArchive={archivarItem}
+        />
       </section>
     </div>
+  )
+}
+
+// Componente raíz que envuelve ambos contextos
+export default function App() {
+  return (
+    <ThemeProvider>
+      <ContenedorProvider>
+        <Coleccion />
+      </ContenedorProvider>
+    </ThemeProvider>
   )
 }
