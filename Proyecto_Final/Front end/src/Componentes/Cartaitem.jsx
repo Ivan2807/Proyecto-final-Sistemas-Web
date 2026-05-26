@@ -1,8 +1,9 @@
 import React from 'react'
 import { getEstadoById } from '../utils/Categorias'
 
-export default function Cartaitem({ item, onEdit, onArchive, category }) {
+function Cartaitem({ item, onEdit, onArchive, onChangeStatus, category }) {
   const estado = getEstadoById(item.estado)
+  const siguiente = item.estado === 'pendiente' ? 'en-progreso' : item.estado === 'en-progreso' ? 'completado' : 'pendiente'
 
   return (
     <li style={{
@@ -53,7 +54,12 @@ export default function Cartaitem({ item, onEdit, onArchive, category }) {
         <button type="button" onClick={() => onArchive?.(item)} style={{ flex: 1 }}>
           📦 Archivar
         </button>
+        <button type="button" onClick={() => onChangeStatus?.(item.id, siguiente)} style={{ flex: 1 }}>
+          🔁 {siguiente.replace('-', ' ')}
+        </button>
       </div>
     </li>
   )
 }
+
+export default React.memo(Cartaitem)

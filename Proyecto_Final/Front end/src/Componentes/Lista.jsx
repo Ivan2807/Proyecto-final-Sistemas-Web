@@ -2,7 +2,7 @@ import React from 'react'
 import Cartaitem from './Cartaitem'
 import { getCategoriaById } from '../utils/Categorias'
 
-export default function Lista({ items = [], onEdit, onArchive }) {
+export default function Lista({ items = [], onEdit, onArchive, onChangeStatus }) {
   return (
     <div style={{ transform: 'translateX(-5px)', paddingRight: '10px' }}>
       <h2 style={{ marginRight: '150px', color: 'rgba(0,0,0,0)' }}>Colección ({items.length})</h2>
@@ -32,6 +32,7 @@ export default function Lista({ items = [], onEdit, onArchive }) {
               item={it}
               onEdit={onEdit}
               onArchive={onArchive}
+              onChangeStatus={onChangeStatus}
               category={getCategoriaById(it.categoriaId)}
             />
           ))}
