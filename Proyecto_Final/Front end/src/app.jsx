@@ -5,6 +5,7 @@ import Lista from './Componentes/Lista'
 import Formulario from './Componentes/formulario'
 import { CATEGORIAS, ESTADOS } from './utils/Categorias'
 import { itemsReducer, initialState } from './reducers/itemsReducer'
+import Estadisticas from './Componentes/Estadisticas'
 
 // ── Componente interno que usa los contextos ──
 function Coleccion() {
@@ -263,6 +264,10 @@ const registrarActividad = (registro) => {
           onChangeStatus={cambiarEstado}
         />
       </section>
+      
+        <section>
+    <Estadisticas items={state.items} registros={state.registros} />
+  </section>
     </div>
   )
 }
