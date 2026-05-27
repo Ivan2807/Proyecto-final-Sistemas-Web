@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-
-export default function Cartaitem({ item, onEdit, onArchive, onRegistrar, category }) {
+ 
+function Cartaitem({ item, onEdit, onArchive, onRegistrar, category }) {
   const [mostrarModal, setMostrarModal] = useState(false)
   const [horas, setHoras] = useState('')
   const [notasReg, setNotasReg] = useState('')
-
+ 
   const handleRegistrar = (e) => {
     e.preventDefault()
     if (!horas) return
@@ -19,7 +19,7 @@ export default function Cartaitem({ item, onEdit, onArchive, onRegistrar, catego
     setNotasReg('')
     setMostrarModal(false)
   }
-
+ 
   return (
     <div style={{ display: 'grid', gap: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
@@ -39,7 +39,7 @@ export default function Cartaitem({ item, onEdit, onArchive, onRegistrar, catego
           <small>{category?.nombre}</small>
         </div>
       </div>
-
+ 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <button type="button" onClick={() => onEdit?.(item)}>Editar</button>
         <button type="button" onClick={() => onArchive?.(item)}>Archivar</button>
@@ -47,16 +47,14 @@ export default function Cartaitem({ item, onEdit, onArchive, onRegistrar, catego
           {mostrarModal ? 'Cancelar' : '+ Registrar horas'}
         </button>
       </div>
-
+ 
       {mostrarModal && (
         <form onSubmit={handleRegistrar} style={{
           display: 'flex', gap: 8, flexWrap: 'wrap',
           background: '#f9f9f9', padding: 10, borderRadius: 6
         }}>
           <input
-            type="number"
-            min="0.1"
-            step="0.1"
+            type="number" min="0.1" step="0.1"
             placeholder="Horas jugadas"
             value={horas}
             onChange={(e) => setHoras(e.target.value)}
@@ -74,3 +72,6 @@ export default function Cartaitem({ item, onEdit, onArchive, onRegistrar, catego
     </div>
   )
 }
+ 
+// React.memo para evitar re-render innecesarios si las props no cambian
+export default React.memo(Cartaitem)
