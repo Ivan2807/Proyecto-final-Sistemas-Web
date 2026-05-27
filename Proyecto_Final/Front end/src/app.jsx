@@ -113,6 +113,10 @@ function Coleccion() {
     },
     [cargar, eliminarItem]
   )
+const registrarActividad = (registro) => {
+    dispatch({ type: ACCIONES.REGISTRAR_ACTIVIDAD, payload: registro })
+  }
+
 
   const cambiarEstado = useCallback(
     (id, estado) => {
