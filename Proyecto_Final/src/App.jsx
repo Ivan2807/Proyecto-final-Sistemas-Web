@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-import Lista from '../Front end/src/Componentes/Lista'
+import React from 'react'
+import AppPrincipal from '../Front end/src/app'
+ 
+export default function App() {
+  return <AppPrincipal />
+}
+ 
 

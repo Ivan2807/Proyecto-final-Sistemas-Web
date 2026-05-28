@@ -4,7 +4,7 @@ import Lista from './Componentes/Lista'
 import Formulario from './Componentes/formulario'
 import Estadisticas from './Componentes/Estadisticas'
 import { CATEGORIAS, ESTADOS } from './utils/Categorias'
-import { juegosReducer, estadoInicial, ACCIONES } from './reducers/juegosReducer'
+import { juegosReducer, estadoInicial, ACCIONES } from '../Reducer/Juegos,reducer'
  
 const STORAGE_KEY = 'mi_coleccion_items'
 const STORAGE_KEY_REGISTROS = 'mi_coleccion_registros'
