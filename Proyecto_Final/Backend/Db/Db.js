@@ -37,4 +37,4 @@ await db.query(`
   console.log('Tablas creadas o ya existen');
 };
 
-module.exports = {db, creaciondeTablas};
+module.exports = {db, pool: db, creaciondeTablas};

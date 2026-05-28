@@ -1,4 +1,179 @@
-body { font-family: Arial, Helvetica, sans-serif; color: #111; }
-input, textarea, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box }
-button { background: #eee; border: 1px solid #ccc; border-radius: 4px; cursor: pointer }
-button:hover { filter: brightness(0.98) }
+/*Variables*/
+:root {
+  --bg:         #f8f7ff;
+  --surface:    #ffffff;
+  --border:     #e2e0f0;
+  --text:       #1a1a2e;
+  --text-muted: #6b6b8a;
+  --primary:    #6c63ff;
+  --primary-light: #ede9ff;
+  --accent:     #ff6584;
+  --success:    #2ecc71;
+  --warning:    #f39c12;
+  --radius:     10px;
+  --shadow:     0 2px 12px rgba(108, 99, 255, 0.08);
+}
+
+/* Header  */
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+ 
+.badge-fase {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+ 
+/* Inputs y selects  */
+input, textarea, select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.15s;
+  outline: none;
+}
+ 
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+ 
+/*Botones  */
+button {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.15s;
+}
+ 
+button:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+ 
+button[type="submit"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+ 
+button[type="submit"]:hover {
+  background: #5a52e0;
+  border-color: #5a52e0;
+  color: #fff;
+}
+ 
+/* Secciones */
+section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+ 
+section h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 14px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+}
+ 
+/*Items de lista */
+ul li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+ 
+ul li:last-child {
+  border-bottom: none;
+}
+ 
+/* Tarjetas de estadísticas  */
+.tarjeta-resumen {
+  background: var(--primary-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+ 
+.tarjeta-resumen .valor {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+}
+ 
+.tarjeta-resumen .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+ 
+/* Layout general*/
+#root-app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: grid;
+  gap: 20px;
+}
+ 
+/* Filtros */
+.filtros-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+ 
+.filtros-container select,
+.filtros-container input {
+  flex: 1;
+  min-width: 140px;
+}
+ 
+/*Modal registrar horas  */
+.modal-registrar {
+  background: var(--primary-light);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+ 
+/*Responsive */
+@media (max-width: 600px) {
+  header h1 { font-size: 1.4rem; }
+  section { padding: 14px 16px; }
+  #root-app { padding: 12px; }
+}
