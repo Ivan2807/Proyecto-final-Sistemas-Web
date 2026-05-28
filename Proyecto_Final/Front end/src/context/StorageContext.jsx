@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 const STORAGE_KEY_MODO = 'mi_coleccion_modo'
 const STORAGE_KEY_ITEMS = 'mi_coleccion_items'
 const STORAGE_KEY_REGISTROS = 'mi_coleccion_registros'
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5173'
 
 const StorageContext = createContext(null)
 
