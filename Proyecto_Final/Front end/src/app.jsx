@@ -3,11 +3,10 @@ import React, { useEffect, useReducer, useState, useMemo, useCallback } from 're
 import Lista from './Componentes/Lista'
 import Formulario from './Componentes/formulario'
 import Estadisticas from './Componentes/Estadisticas'
+import ModoSelector from './Componentes/ModoSelector'
+import { useStorage } from './context/StorageContext'
 import { CATEGORIAS, ESTADOS } from './utils/Categorias'
 import { juegosReducer, estadoInicial, ACCIONES } from '../Reducer/Juegos,reducer'
- 
-const STORAGE_KEY = 'mi_coleccion_items'
-const STORAGE_KEY_REGISTROS = 'mi_coleccion_registros'
  
 function makeItem(data) {
   const now = new Date().toISOString()
@@ -28,41 +27,57 @@ function makeItem(data) {
 export default function App() {
   const [state, dispatch] = useReducer(juegosReducer, estadoInicial)
   const [editing, setEditing] = useState(null)
+  const [error, setError] = useState(null)
+  const { modo, obtenerItems, obtenerRegistros, guardarItem, eliminarItem, registrarActividad: registrarActividadStorage } = useStorage()
  
-  // Hidratar desde LocalStorage al montar
-  useEffect(() => {
-    const itemsGuardados = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    const registrosGuardados = JSON.parse(localStorage.getItem(STORAGE_KEY_REGISTROS) || '[]')
-    dispatch({
-      type: ACCIONES.HIDRATAR,
-      payload: { items: itemsGuardados, registros: registrosGuardados },
-    })
-  }, [])
- 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items))
-  }, [state.items])
- 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_REGISTROS, JSON.stringify(state.registros))
-  }, [state.registros])
- 
-  const salvarItem = useCallback((data) => {
-    if (editing) {
-      dispatch({ type: ACCIONES.ACTUALIZAR, payload: { ...editing, ...data } })
-      setEditing(null)
-    } else {
-      dispatch({ type: ACCIONES.AGREGAR, payload: makeItem(data) })
+  const cargar = useCallback(async () => {
+    try {
+      const [items, registros] = await Promise.all([obtenerItems(), obtenerRegistros()])
+      dispatch({
+        type: ACCIONES.HIDRATAR,
+        payload: { items, registros },
+      })
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar datos')
     }
-  }, [editing])
+  }, [obtenerItems, obtenerRegistros])
  
-  const archivarItem = useCallback((item) => {
-    dispatch({ type: ACCIONES.ARCHIVAR, payload: item })
-  }, [])
+  useEffect(() => {
+    cargar()
+  }, [cargar, modo])
  
-  const registrarActividad = useCallback((registro) => {
-    dispatch({ type: ACCIONES.REGISTRAR_ACTIVIDAD, payload: registro })
-  }, [])
+  const salvarItem = useCallback(
+    async (data) => {
+      if (editing) {
+        const itemActualizado = { ...editing, ...data }
+        await guardarItem(itemActualizado)
+        dispatch({ type: ACCIONES.ACTUALIZAR, payload: itemActualizado })
+        setEditing(null)
+      } else {
+        const nuevoItem = makeItem(data)
+        await guardarItem(nuevoItem)
+        dispatch({ type: ACCIONES.AGREGAR, payload: nuevoItem })
+      }
+    },
+    [editing, guardarItem]
+  )
+ 
+  const archivarItem = useCallback(
+    async (item) => {
+      await eliminarItem(item.id)
+      dispatch({ type: ACCIONES.ARCHIVAR, payload: item })
+    },
+    [eliminarItem]
+  )
+ 
+  const registrarActividad = useCallback(
+    async (registro) => {
+      await registrarActividadStorage(registro)
+      dispatch({ type: ACCIONES.REGISTRAR_ACTIVIDAD, payload: registro })
+    },
+    [registrarActividadStorage]
+  )
  
   const cambiarFiltro = useCallback((campo, valor) => {
     dispatch({ type: ACCIONES.FILTRAR, payload: { [campo]: valor } })
@@ -111,7 +126,22 @@ export default function App() {
           Fase 3: Reducer + Recharts + Optimización
         </span>
       </header>
- 
+
+      <ModoSelector />
+
+      {error && (
+        <div style={{
+          marginBottom: 16,
+          padding: 12,
+          border: '1px solid #e74c3c',
+          background: '#ffe9e9',
+          color: '#a12a2a',
+          borderRadius: 8,
+        }}>
+          ⚠️ {error}
+        </div>
+      )}
+
       <section style={{ marginBottom: 24 }}>
         <h2>{editing ? 'Editar juego' : 'Agregar juego'}</h2>
         <Formulario
