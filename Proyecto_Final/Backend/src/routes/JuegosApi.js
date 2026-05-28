@@ -14,6 +14,18 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// Obtener todos los registros de actividad
+router.get('/registros', async (req, res, next) => {
+  try {
+    const resultado = await pool.query(
+      'SELECT * FROM registros ORDER BY fecha DESC'
+    );
+    res.json(resultado.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
 //Obtener un juego por su id
 router.get('/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -122,6 +134,34 @@ router.post('/:id/registro', async (req, res, next) => {
     );
 
     res.status(201).json({ mensaje: 'Registro guardado', id });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Obtener todos los registros de actividad
+router.get('/registros', async (req, res, next) => {
+  try {
+    const resultado = await pool.query(
+      'SELECT * FROM registros ORDER BY fecha DESC'
+    );
+    res.json(resultado.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Archivar un juego (activo = false)
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const resultado = await pool.query(
+      'UPDATE juegos SET activo = 0 WHERE id = $1',
+      [req.params.id]
+    );
+    if (resultado.rowCount === 0) {
+      return res.status(404).json({ error: 'Juego no encontrado' });
+    }
+    res.json({ mensaje: 'Juego archivado' });
   } catch (err) {
     next(err);
   }
