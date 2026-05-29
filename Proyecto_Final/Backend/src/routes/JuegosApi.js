@@ -139,18 +139,6 @@ router.post('/:id/registro', async (req, res, next) => {
   }
 });
 
-// Obtener todos los registros de actividad
-router.get('/registros', async (req, res, next) => {
-  try {
-    const resultado = await pool.query(
-      'SELECT * FROM registros ORDER BY fecha DESC'
-    );
-    res.json(resultado.rows);
-  } catch (err) {
-    next(err);
-  }
-});
-
 // Archivar un juego (activo = false)
 router.delete('/:id', async (req, res, next) => {
   try {
